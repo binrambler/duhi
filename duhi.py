@@ -6,17 +6,20 @@ import matplotlib.ticker as ticker
 import seaborn as sns
 from sklearn.linear_model import LinearRegression
 from sklearn.ensemble import RandomForestRegressor
+import duhi_query
 
-server = '127.0.0.1'
+server = '192.168.20.5'
 database = 'IZH_SQL_2018'
 username = 'sa'
 password = ''
 with pyodbc.connect('DRIVER={SQL Server};SERVER='+server+';DATABASE='+database+';UID='+username+';PWD='+ password) as conn:
     # conn.row_factory = pyodbc.Row
     cur = conn.cursor()
-    cur.execute('select * from dbo.sc55')
+    s = duhi_query.query_sale("'20180101'", "'20220430'", "'  2KL0   '")
+    # print(s)
+    cur.execute(s)
     rows = cur.fetchall()
-    # print(rows)
+    # # print(rows)
     for row in rows:
         print(row)
 exit()

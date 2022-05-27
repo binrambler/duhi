@@ -1,13 +1,11 @@
 ﻿def query_sale(dB, dE, gruppa_id):
-    return """sel
-    """
     return f"""
     select
     year(REAL.DOCDATA) as Год,
     month(REAL.DOCDATA) as Месяц, 
     cast(sum(case 
     when SKLAD.SP38115 in (0, 2) and REAL.POKUP not in ('   5N8   ') and REAL.PN_SP347 not in ('   4XX   ', '   15Q   ')
-    then REAL.PN_SP6818 else 0 end) as decimal(15, 2)) as ОптВсегоСумма
+    then REAL.PN_SP6818 else 0 end) as decimal(15, 2)) as Сумма
     
     from
     (
@@ -64,5 +62,3 @@
     1, 
     2
     """
-
-print(query("'20180101'", "'20220430'", "'  2KL0   '"))
