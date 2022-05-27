@@ -13,23 +13,17 @@ database = 'IZH_SQL_2018'
 username = 'sa'
 password = ''
 with pyodbc.connect('DRIVER={SQL Server};SERVER='+server+';DATABASE='+database+';UID='+username+';PWD='+ password) as conn:
-    # conn.row_factory = pyodbc.Row
-    cur = conn.cursor()
-    s = duhi_query.query_sale("'20180101'", "'20220430'", "'  2KL0   '")
-    # print(s)
-    cur.execute(s)
-    rows = cur.fetchall()
-    # # print(rows)
-    for row in rows:
-        print(row)
-exit()
+    s_sql = duhi_query.query_sale("'20180101'", "'20220430'", "'  2KL0   '")
+    df = pd.read_sql(s_sql, conn)
+    # print(df)
+# exit()
 
 path_dir = pathlib.Path('d:/py/ml')
 path_xls = pathlib.Path(path_dir, 'ml_духи.xls')
 path_plt = pathlib.Path(path_dir, 'ml_духи.png')
 
 # читаем файл, подготавливаем данные
-df = pd.read_excel(io=path_xls, engine='xlrd')
+# df = pd.read_excel(io=path_xls, engine='xlrd')
 df['Сумма'] = round(df['Сумма'] / 1000, 0)
 
 def graph(arr):
@@ -67,9 +61,9 @@ def fill(arr):
     return arr
 
 # graph(df)
-# arr = fill(df)
-# print(arr)
-# graph(arr)
+arr = fill(df)
+print(arr)
+graph(arr)
 
 
 
