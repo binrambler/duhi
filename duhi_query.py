@@ -14,10 +14,8 @@
     select
     cast(left(J.DATE_TIME_IDDOC, 8) as datetime) as DOCDATA,
     DOC.IDDOC,
-    DOC.CODEOPERM,
     DOC.POKUP,
     DOC.SKLAD,
-    PN.SP342 as PN_SP342,
     PN.SP6818 as PN_SP6818,
     PN.SP331 as PN_SP331,
     PN.SP347 as PN_SP347,
@@ -27,7 +25,6 @@
     (
     select
     dO.IDDOC as IDDOC,
-    dO.SP8196 as CODEOPERM,
     dO.SP1583 as POKUP,
     dO.SP1593 as SKLAD
     from
@@ -37,7 +34,6 @@
 
     select
     dR.IDDOC as IDDOC,
-    dR.SP8198 as CODEOPERM,
     dR.SP5268 as POKUP,
     dR.SP5267 as SKLAD
     from
