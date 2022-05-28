@@ -1,32 +1,73 @@
 import pyodbc
 import pathlib
+import configparser
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import seaborn as sns
 from sklearn.ensemble import RandomForestRegressor
 
-WORK_DIR = pathlib.Path('d:/py/ml')
 CURR_DIR = pathlib.Path.cwd()
-FILE_XLS = pathlib.Path(WORK_DIR, 'ml_духи.xls')
-FILE_GPH = pathlib.Path(WORK_DIR, 'ml_духи.png')
+FILE_IN0 = pathlib.Path(CURR_DIR, 'duhi.ini')
+FILE_IN1 = pathlib.Path(CURR_DIR, 'query.ini')
+FILE_XLS = pathlib.Path(CURR_DIR, 'ml_духи.xls')
+FILE_GPH = pathlib.Path(CURR_DIR, 'ml_духи.png')
 FILE_QRY = pathlib.Path(CURR_DIR, 'query.txt')
 
-SERVER = '192.168.20.5'
-DATABASE = 'IZH_SQL_2018'
-USERNAME = 'sa'
+SERVER = ''
+DATABASE = ''
+USERNAME = ''
 PASSWORD = ''
 
-dB = "'20180101'"
-dE = "'20220430'"
-gruppa_id = "'  2KL0   '"
+DATE_BEG = ''
+DATE_END = ''
+GRUPPA_ID = ''
+
+def create_ini(mode, file_ini):
+    config = configparser.ConfigParser()
+    if mode == 'setup':
+        config.add_section('Main')
+        config.set('Main', 'server', '192.168.20.5')
+        config.set('Main', 'database', 'IZH_SQL_2018')
+        config.set('Main', 'username', 'sa')
+        config.set('Main', 'password', '')
+    elif mode == 'query':
+        config.add_section('Main')
+        config.set('Main', 'date_beg', "'20180101'")
+        config.set('Main', 'date_end', "'20220430'")
+        config.set('Main', 'gruppa_id', "'  2KL0   '")
+    with open(file_ini, 'w') as f:
+        config.write(f)
+
+def read_ini():
+    if not FILE_IN0.exists():
+        print('Нет файла с настройками программы:', FILE_IN0)
+        create_ini('setup', FILE_IN0)
+        return
+    if not FILE_IN1.exists():
+        print('Нет файла с настройками запроса:', FILE_IN1)
+        create_ini('query', FILE_IN1)
+        return
+    config = configparser.ConfigParser()
+    config.read(FILE_IN0)
+    global SERVER, DATABASE, USERNAME, PASSWORD
+    SERVER = config.get('Main', 'server')
+    DATABASE = config.get('Main', 'database')
+    USERNAME = config.get('Main', 'username')
+    PASSWORD = config.get('Main', 'password')
+
+    config.read(FILE_IN1)
+    global DATE_BEG, DATE_END, GRUPPA_ID
+    DATE_BEG = config.get('Main', 'date_beg')
+    DATE_END = config.get('Main', 'date_end')
+    GRUPPA_ID = config.get('Main', 'gruppa_id')
 
 def read_query():
     with open(FILE_QRY, 'r', encoding='utf-8-sig') as f:
         str_qry = ''.join([s for s in f])
-    str_qry = str_qry.replace('<dB>', dB)
-    str_qry = str_qry.replace('<dE>', dE)
-    str_qry = str_qry.replace('<gruppa_id>', gruppa_id)
+    str_qry = str_qry.replace('<DATE_BEG>', DATE_BEG)
+    str_qry = str_qry.replace('<DATE_END>', DATE_END)
+    str_qry = str_qry.replace('<GRUPPA_ID>', GRUPPA_ID)
     return str_qry
 
 def exec_query(str_qry):
@@ -70,10 +111,11 @@ def fill_array(arr):
         arr = pd.concat([arr, data], ignore_index=True)
     return arr
 
+read_ini()
 str_qry = read_query()
 arr = exec_query(str_qry)
 # читаем файл, подготавливаем данные
-# df = pd.read_excel(io=FILE_XLS, engine='xlrd')
+# arr = pd.read_excel(io=FILE_XLS, engine='xlrd')
 arr['SUMMA'] = round(arr['SUMMA'] / 1000, 0)
 # graph(df)
 arr = fill_array(arr)

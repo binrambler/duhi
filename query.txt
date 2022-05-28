@@ -48,9 +48,9 @@ inner join dbo.SC84 as MADV (nolock) on(M.PARENTID = MADV.ID and MADV.PARENTID =
 inner join dbo.SC55 as SKLAD (nolock) on REAL.SKLAD = SKLAD.ID
 
 where
-REAL.DOCDATA between <dB> and <dE>
+REAL.DOCDATA between <DATE_BEG> and <DATE_END>
 and REAL.PN_SP331 not in ('  2G8A   ')
-and MADV.ID = <gruppa_id>
+and MADV.ID = <GRUPPA_ID>
 
 group by
 month(REAL.DOCDATA),
