@@ -11,7 +11,6 @@ CURR_DIR = pathlib.Path.cwd()
 FILE_IN0 = pathlib.Path(CURR_DIR, 'duhi.ini')
 FILE_IN1 = pathlib.Path(CURR_DIR, 'query.ini')
 FILE_XLS = pathlib.Path(CURR_DIR, 'ml_духи.xls')
-FILE_GPH = pathlib.Path(CURR_DIR, 'ml_духи.png')
 FILE_QRY = pathlib.Path(CURR_DIR, 'query.txt')
 
 SERVER = ''
@@ -21,7 +20,8 @@ PASSWORD = ''
 
 DATE_BEG = ''
 DATE_END = ''
-GRUPPA_ID = ''
+GRUPPA_CODE = ''
+GRUPPA_NAME = ''
 
 def create_ini(mode, file_ini):
     config = configparser.ConfigParser()
@@ -35,7 +35,7 @@ def create_ini(mode, file_ini):
         config.add_section('Main')
         config.set('Main', 'date_beg', "'20180101'")
         config.set('Main', 'date_end', "'20220430'")
-        config.set('Main', 'gruppa_id', "'  2KL0   '")
+        config.set('Main', 'gruppa_code', "'0002'")
     with open(file_ini, 'w') as f:
         config.write(f)
 
@@ -57,17 +57,17 @@ def read_ini():
     PASSWORD = config.get('Main', 'password')
 
     config.read(FILE_IN1)
-    global DATE_BEG, DATE_END, GRUPPA_ID
+    global DATE_BEG, DATE_END, GRUPPA_CODE
     DATE_BEG = config.get('Main', 'date_beg')
     DATE_END = config.get('Main', 'date_end')
-    GRUPPA_ID = config.get('Main', 'gruppa_id')
+    GRUPPA_CODE = config.get('Main', 'gruppa_code')
 
 def read_query():
     with open(FILE_QRY, 'r', encoding='utf-8-sig') as f:
         str_qry = ''.join([s for s in f])
     str_qry = str_qry.replace('<DATE_BEG>', DATE_BEG)
     str_qry = str_qry.replace('<DATE_END>', DATE_END)
-    str_qry = str_qry.replace('<GRUPPA_ID>', GRUPPA_ID)
+    str_qry = str_qry.replace('<GRUPPA_CODE>', GRUPPA_CODE)
     return str_qry
 
 def exec_query(str_qry):
@@ -77,17 +77,18 @@ def exec_query(str_qry):
                         ';PWD=' + PASSWORD) as conn:
         return pd.read_sql(str_qry, conn)
 
-def graph(arr):
+def graph(arr, mode):
     # строим график продаж по месяцам
+    file_name = pathlib.Path(CURR_DIR, GRUPPA_CODE + mode + '.png')
     fig, ax = plt.subplots()
     fig.set_size_inches(8, 6)
     ax.xaxis.set_major_locator(ticker.MultipleLocator(1))
     sns.lineplot(data=arr, x='MONTH', y='SUMMA', hue='YEAR', palette='plasma')
     plt.grid(True)
-    plt.title('Продажи')
+    plt.title(f'Продажи, {mode}\n{GRUPPA_CODE}, {GRUPPA_NAME}')
     plt.xlabel('Месяц')
-    plt.ylabel('Сумма, тыс. руб.')
-    plt.savefig(FILE_GPH, dpi = 150)
+    plt.ylabel('Сумма')
+    plt.savefig(file_name, dpi = 150)
 
 def predict(arr, year, month):
     X = arr.query('MONTH == @month')
@@ -111,13 +112,15 @@ def fill_array(arr):
         arr = pd.concat([arr, data], ignore_index=True)
     return arr
 
+def to_excel(arr):
+    file_name = pathlib.Path(CURR_DIR, GRUPPA_CODE + 'прогноз.xls')
+    arr.to_excel(file_name, columns=['YEAR', 'MONTH', 'SUMMA'], index=False)
+
 read_ini()
 str_qry = read_query()
 arr = exec_query(str_qry)
-# читаем файл, подготавливаем данные
-# arr = pd.read_excel(io=FILE_XLS, engine='xlrd')
-arr['SUMMA'] = round(arr['SUMMA'] / 1000, 0)
-# graph(df)
+GRUPPA_NAME = arr['GRUPPA_NAME'][0].strip()
+graph(arr, 'факт')
 arr = fill_array(arr)
-print(arr)
-graph(arr)
+graph(arr, 'прогноз')
+to_excel(arr)

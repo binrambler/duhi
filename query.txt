@@ -3,7 +3,8 @@ year(REAL.DOCDATA) as YEAR,
 month(REAL.DOCDATA) as MONTH,
 cast(sum(case
 when SKLAD.SP38115 in (0, 2) and REAL.POKUP not in ('   5N8   ') and REAL.PN_SP347 not in ('   4XX   ', '   15Q   ')
-then REAL.PN_SP6818 else 0 end) as decimal(15, 2)) as SUMMA
+then REAL.PN_SP6818 else 0 end) as decimal(15, 2)) as SUMMA,
+MADV.DESCR as GRUPPA_NAME
 
 from
 (
@@ -48,13 +49,14 @@ inner join dbo.SC84 as MADV (nolock) on(M.PARENTID = MADV.ID and MADV.PARENTID =
 inner join dbo.SC55 as SKLAD (nolock) on REAL.SKLAD = SKLAD.ID
 
 where
-REAL.DOCDATA between <DATE_BEG> and <DATE_END>
+REAL.DOCDATA between '<DATE_BEG>' and '<DATE_END>'
 and REAL.PN_SP331 not in ('  2G8A   ')
-and MADV.ID = <GRUPPA_ID>
+and MADV.CODE = '<GRUPPA_CODE>'
 
 group by
 month(REAL.DOCDATA),
-year(REAL.DOCDATA)
+year(REAL.DOCDATA),
+MADV.DESCR
 
 order by
 1,
