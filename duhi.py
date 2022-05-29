@@ -96,7 +96,7 @@ def predict(arr, year, month):
     model = RandomForestRegressor()
     model.fit(X, y)
     X_new = [[year]]
-    return round(model.predict(X_new)[0], 0)
+    return model.predict(X_new)[0]
 
 def fill_array(arr):
     while 1:
