@@ -10,7 +10,6 @@ from sklearn.ensemble import RandomForestRegressor
 CURR_DIR = pathlib.Path.cwd()
 FILE_IN0 = pathlib.Path(CURR_DIR, 'duhi.ini')
 FILE_IN1 = pathlib.Path(CURR_DIR, 'query.ini')
-FILE_XLS = pathlib.Path(CURR_DIR, 'ml_духи.xls')
 FILE_QRY = pathlib.Path(CURR_DIR, 'query.txt')
 
 SERVER = ''
