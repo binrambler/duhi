@@ -32,9 +32,9 @@ def create_ini(mode, file_ini):
         config.set('Main', 'password', '')
     elif mode == 'query':
         config.add_section('Main')
-        config.set('Main', 'date_beg', "'20180101'")
-        config.set('Main', 'date_end', "'20220430'")
-        config.set('Main', 'gruppa_code', "'0002'")
+        config.set('Main', 'date_beg', '20180101')
+        config.set('Main', 'date_end', '20220430')
+        config.set('Main', 'gruppa_code', '0002')
     with open(file_ini, 'w') as f:
         config.write(f)
 
